@@ -1,13 +1,16 @@
+
+from helpers import to_json
 from extensions import db
 
-
 class Item(db.Model):
-    __table__ = db.Table("items", db.metadata, autoload=True)
-    __tablename__ = 'items'
+    __table__ = db.Table('items', db.metadata, autoload=True)
+
+    def to_json(self):
+        return to_json(self, Item)
 
 
 class Album(db.Model):
-    __table__ = db.Table("albums", db.metadata)
+    __table__ = db.Table('albums', db.metadata, autoload=True)
 
 
 class User(object):

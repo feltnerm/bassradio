@@ -7,8 +7,8 @@ from models import Item, Album
 class Tracks:
     api = Blueprint('tracks', __name__)
 
-    @api.route("/<int:id>/", defaults={'id': None})
+    @api.route("/<int:id>/")
     def index(id):
-        track = Item.get_or_404(id)
-        return jsonify(track=track.__dict__)
+        track = Item.query.get_or_404(id)
+        return jsonify(track=track.to_json())
 
