@@ -10,8 +10,7 @@ SECRET_KEY = """{{ SECRET_KEY }}"""
 
 # Music Database
 #########
-MUSIC_DATABASE = """{{ MUSIC_DATABASE }}"""
-SQLALCHEMY_DATABASE_URI = "sqlite:///"+MUSIC_DATABASE
+SQLALCHEMY_DATABASE_URI = "sqlite:///%s" % """{{ MUSIC_DATABASE }} """
 
 # Cache
 #########
