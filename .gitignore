@@ -1,5 +1,9 @@
 *.py[cod]
 
+settings_*.py
+!settings_default.py
+!settings_template.py
+
 # C extensions
 *.so
 
