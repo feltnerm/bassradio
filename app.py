@@ -4,6 +4,8 @@ import os
 import os.path
 import sys
 
+from pprint import pprint
+
 from flask import Flask
 
 
@@ -14,6 +16,7 @@ def configure_app(app, filename):
         app.config.from_pyfile(os.path.abspath(filename))
     except IOError, e:
         print e
+    pprint(app.config)
 
 
 def configure_before_handlers(app):
@@ -46,6 +49,9 @@ def configure_extensions(app):
     from extensions import db
 
     db.init_app(app)
+    db.app = app
+    db.metadata.bind = db.get_engine(app)
+    db.metadata.reflect()
 
     """
     Login.manager.setup_app(app)
@@ -77,5 +83,3 @@ def init_app(config='settings_prod.py'):
         app.wsgi_app = ProxyFix(app.wsgi_app)
 
     return app
-
-app = init_app()
