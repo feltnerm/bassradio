@@ -6,7 +6,7 @@ import sys
 
 from pprint import pprint
 
-from flask import Flask
+from flask import render_template, Flask
 
 
 def configure_app(app, filename):
@@ -46,12 +46,16 @@ def configure_error_handlers(app):
 
 
 def configure_extensions(app):
-    from extensions import db
+    from extensions import db, Assets
 
     db.init_app(app)
     db.app = app
     db.metadata.bind = db.get_engine(app)
     db.metadata.reflect()
+
+
+    if app.config['FRONTEND']:
+        Assets.register_app(app)
 
     """
     Login.manager.setup_app(app)
@@ -64,9 +68,15 @@ def configure_extensions(app):
 
 def configure_routes(app):
 
-    from views import Tracks
+    from views import Tracks, Albums
 
     app.register_blueprint(Tracks.api, url_prefix='/tracks')
+    app.register_blueprint(Albums.api, url_prefix='/albums')
+
+    if app.config['FRONTEND']:
+        @app.route("/")
+        def index():
+            return render_template('index.html')
 
 def init_app(config='settings_prod.py'):
 
