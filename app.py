@@ -1,22 +1,18 @@
 #!/usr/bin/env python
 
-import os
-import os.path
-import sys
-
-from pprint import pprint
-
-from flask import render_template, Flask
+from flask import Flask
 
 
 def configure_app(app, filename):
+
+    import os.path
 
     app.config.from_pyfile(os.path.abspath('settings_default.py'))
     try:
         app.config.from_pyfile(os.path.abspath(filename))
     except IOError, e:
         print e
-    pprint(app.config)
+    app.logger.info("Configuration file: %s" % filename)
 
 
 def configure_before_handlers(app):
@@ -30,29 +26,69 @@ def configure_before_handlers(app):
 
 def configure_error_handlers(app):
 
-    from flask import jsonify
-    from werkzeug.exceptions import default_exceptions
-    from werkzeug.exceptions import HTTPException
+    from flask import (jsonify, redirect, render_template, request,
+            url_for)
+    from helpers import request_wants_json
 
-    def make_json_error(ex):
-        response = jsonify(message=str(ex))
-        response.status_code = (ex.code 
-                if isinstance(ex, HTTPException)
-                else 500)
+    def make_json_error(error, code):
+        response = jsonify(message=str(error))
+        response.status_code = code
         return response
-                            
-    for code in default_exceptions.iterkeys():
-        app.error_handler_spec[None][code] = make_json_error
+
+    @app.errorhandler(401)
+    def unauthorized(error):
+        if request_wants_json():
+            return make_json_error(error, 401)
+        return redirect(url_for('login', next=request.path))
+
+    @app.errorhandler(403)
+    def forbidden(error):
+        if request_wants_json():
+            return make_json_error(error, 403)
+        return render_template("errors/403.html", error=error)
+
+    @app.errorhandler(404)
+    def page_not_found(error):
+        if request_wants_json():
+            return make_json_error(error, 404)
+        return render_template("errors/404.html", error=error)
+
+    @app.errorhandler(413)
+    def entity_too_large(error):
+        if request_wants_json():
+            return make_json_error(error, 413)
+        return render_template("errors/413.html", error=error)
+
+    @app.errorhandler(415)
+    def unsupported_media(error):
+        if request_wants_json():
+            return make_json_error(error, 415)
+        return render_template("errors/415.html", error=error)
+
+    @app.errorhandler(500)
+    def server_error(error):
+        app.logger.error("Server error! %s" % error)
+        if request_wants_json():
+            return make_json_error(error, 500)
+        return render_template("errors/500.html", error=error)
+
+    @app.errorhandler(501)
+    def not_implemented(error):
+        if request_wants_json():
+            return make_json_error(error, 501)
+        return render_template("errors/501.html", error=error)
 
 
 def configure_extensions(app):
+
     from extensions import db, Assets
 
     db.init_app(app)
+    app.logger.info("Database initialized.")
     db.app = app
     db.metadata.bind = db.get_engine(app)
     db.metadata.reflect()
-
+    app.logger.info("Database tables reflected.")
 
     if app.config['FRONTEND']:
         Assets.register_app(app)
@@ -66,17 +102,41 @@ def configure_extensions(app):
     """
 
 
+def configure_logging(app):
+
+    from logbook import Logger
+    from logbook import (NestedSetup, FileHandler, StreamHandler,
+            NullHandler)
+    from logbook.compat import RedirectLoggingHandler
+    app.logger = Logger('bassradio')
+
+
 def configure_routes(app):
 
-    from views import Tracks, Albums
+    from views import (AlbumView, ArtistView, FileView, ListView,
+            SongView, QueryView)
 
-    app.register_blueprint(Tracks.api, url_prefix='/tracks')
-    app.register_blueprint(Albums.api, url_prefix='/albums')
+    default_url_prefix = '/api'
+    for view, prefix in (
+            (AlbumView, '/album'), 
+            (ArtistView, '/artist'),
+            (FileView, '/file'),
+            (SongView, '/song'),
+            (QueryView, '/query'),
+            (ListView, '/list')
+            ):
+        api_url_prefix = default_url_prefix + prefix
+        app.register_blueprint(view.api, url_prefix=api_url_prefix)
+        app.logger.info("Blueprint: <%s> added." % view.api)
 
     if app.config['FRONTEND']:
+
+        from flask import render_template
+
         @app.route("/")
         def index():
             return render_template('index.html')
+    
 
 def init_app(config='settings_prod.py'):
 
@@ -89,7 +149,17 @@ def init_app(config='settings_prod.py'):
     configure_routes(app)
 
     if not app.debug:
+        app.logger.info("Applying proxy fix.")
+
         from werkzeug.contrib.fixers import ProxyFix
         app.wsgi_app = ProxyFix(app.wsgi_app)
+
+    if app.debug:
+
+        from pprint import pprint
+        confstr = ""
+        for key, val in app.config.iteritems():
+            confstr += "  %s: %s\n" % (key, val)
+        app.logger.info(confstr)
 
     return app

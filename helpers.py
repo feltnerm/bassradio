@@ -1,5 +1,15 @@
-import json
 from flask import request
+
+import simplejson as json
+
+
+def format_time(millis, format = "%d:%02d"):
+    minutes = millis / 60
+    seconds = minutes * 60 
+    if minutes > 1.0:
+        seconds = minutes % math.floor(minutes) * 60
+    return "%d:%02d" % (round(minutes), round(seconds))
+
 
 def to_json(inst, cls):
     convert = dict()
@@ -18,6 +28,7 @@ def to_json(inst, cls):
         else:
             d[c.name] = v
         return json.dumps(d)
+
 
 def request_wants_json():
     """

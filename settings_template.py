@@ -12,6 +12,7 @@ SECRET_KEY = """{{ SECRET_KEY }}"""
 #########
 MUSIC_DATABASE = """{{ MUSIC_DATABASE }}"""
 SQLALCHEMY_DATABASE_URI = "sqlite:///%s" % MUSIC_DATABASE
+SQLALCHEMY_ECHO = DEVELOPMENT
 
 # Should Flask serve the frontend as well?
 FRONTEND = {{ FRONTEND }}

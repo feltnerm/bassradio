@@ -1,45 +1,78 @@
 #!/usr/bin/env python
 
+import logging
+
 from flask.ext.assets import Environment, Bundle
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import (LoginManager, current_user, login_required, 
         login_user, logout_user)
 
-class Assets:
 
+class Assets:
 
     @staticmethod
     def register_app(app):
 
         assets = Environment()
 
-        js_libs = Bundle("js/lib/jquery.js", "js/lib/boostrap.js", 
+        js_libs = Bundle("js/lib/jquery.js", "js/lib/bootstrap.js", 
                 "js/lib/json2.js", "js/lib/underscore.js", 
-                "js/lib/backbone.js", "js/plugins.js", 
-                filters=None,
+                "js/lib/backbone.js", "js/lib/ICanHaz.js",
+                "js/lib/javascript-last.fm-api/lastfm.api.js",
+                "js/lib/javascript-last.fm-api/lastfm.api.cache.js",
+                "js/lib/javascript-last.fm-api/lastfm.api.md5.js",
+                "js/plugins.js", 
+                filters='jsmin',
                 output='gen/libs.js')
-
-        js_libs_min = Bundle(js_libs, 
-                filters='jsmin', 
-                output='gen/libs-min.js')
 
         css_libs = Bundle("css/lib/bootstrap.css", 
                 "css/lib/bootstrap-responsive.css",
                 "css/main.css",
-                filters=None,
+                filters='cssmin',
                 output='gen/libs.css')
 
-        css_libs_min = Bundle(css_libs,
-                filters='cssmin',
-                output='gen/libs-min.css')
+        #app_js = Bundle("coffee/app.coffee",
+        #        filters="coffeescript,jsmin",
+        #        output="gen/app.js")
+        app_js = Bundle("js/app.js", 
+                "js/plugins/lastfm.js",
+                
+                "js/models/song.js",
+                "js/collections/songs.js",
+                "js/models/album.js",
+                "js/models/artist.js",
+                "js/collections/albums.js",
+                "js/collections/searchlist.js",
+
+                "js/views/songtablerow.js",
+                "js/views/songtable.js",
+
+                "js/views/album.js",
+                "js/views/artist.js",
+                "js/views/browser.js",
+
+                "js/views/nowplaying.js",
+                "js/views/searchbar.js",
+                "js/views/navigation.js",
+                "js/views/controller.js",
+
+                "js/views/app.js",
+
+                "js/routers/app.js",
+
+                "js/main.js",
+                filters='jsmin',
+                output="gen/app.js")
 
         bundles = {
-                'js_libs': (js_libs if app.debug else js_libs_min),
-                'css_libs': (css_libs if app.debug else css_libs_min)
+                'js_libs': js_libs,
+                'css_libs': css_libs,
+                'app_js': app_js
                 }
 
         assets.init_app(app)
         assets.register(bundles)
+        app.logger.debug("Assets loaded")
 
 class Login:
 
