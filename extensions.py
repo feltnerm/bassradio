@@ -29,7 +29,6 @@ class Assets:
 
         css_libs = Bundle("css/lib/bootstrap.css", 
                 "css/lib/bootstrap-responsive.css",
-                "js/lib/bxslider-4/jquery.bxslider.css",
                 "css/main.css",
                 filters='cssmin',
                 output='gen/libs.css')
