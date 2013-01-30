@@ -25,7 +25,9 @@ class Assets:
                 "js/lib/json2.js", "js/lib/underscore.js", 
                 "js/lib/backbone.js", "js/lib/ICanHaz.js",
                 lastfm_api,
-                "js/plugins.js")
+                "js/plugins.js",
+                output="gen/libs.js",
+                filters="uglifyjs")
 
         css_libs = Bundle("css/lib/bootstrap.css", 
                 "css/lib/bootstrap-responsive.css",
@@ -33,10 +35,9 @@ class Assets:
                 filters='cssmin',
                 output='gen/libs.css')
 
-        #app_js = Bundle("coffee/app.coffee",
-        #        filters="coffeescript,uglifyjs",
-        #        output="gen/app.js")
-        app_js = Bundle(js_libs,
+        app_js = Bundle(
+                js_libs,
+
                 "js/app.js", 
                 
                 "js/models/song.js",
