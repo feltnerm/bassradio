@@ -1,5 +1,5 @@
 static/gen/*
-static/.webassets-cache*
+static/.webassets-cache/
 node_modules
 *.py[cod]
 
