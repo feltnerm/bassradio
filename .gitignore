@@ -1,3 +1,5 @@
+static/gen/*
+static/.webassets-cache*
 *.py[cod]
 
 settings_*.py
