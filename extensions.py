@@ -21,13 +21,13 @@ class Assets:
                 "js/lib/javascript-last.fm-api/lastfm.api.md5.js"
                 )
         
-
         js_libs = Bundle("js/lib/jquery.js", "js/lib/bootstrap.js", 
                 "js/lib/json2.js", "js/lib/underscore.js", 
                 "js/lib/backbone.js", "js/lib/ICanHaz.js",
                 lastfm_api,
                 "js/lib/bxslider-4/jquery.bxslider.js",
                 "js/plugins.js", 
+                app_js,
                 filters='jsmin',
                 output='gen/libs.js')
 
@@ -41,7 +41,8 @@ class Assets:
         #app_js = Bundle("coffee/app.coffee",
         #        filters="coffeescript,jsmin",
         #        output="gen/app.js")
-        app_js = Bundle("js/app.js", 
+        app_js = Bundle(js_libs,
+                "js/app.js", 
                 "js/plugins/lastfm.js",
                 
                 "js/models/song.js",
@@ -72,7 +73,6 @@ class Assets:
                 output="gen/app.js")
 
         bundles = {
-                'js_libs': js_libs,
                 'css_libs': css_libs,
                 'app_js': app_js
                 }

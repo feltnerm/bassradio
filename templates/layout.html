@@ -37,14 +37,6 @@
         ================ -->
         {% include "templates.html" %}
 
-        <!-- Javascript Libraries
-        ================ -->
-        {% assets "js_libs" %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-        {% endassets %}
-
-        <script type="text/javascript" src="{{ url_for('static', filename='js/lib/holder.js') }}"></script>
-
         <!-- Ze App
         ================ -->
         {% assets "app_js" %}
