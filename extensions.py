@@ -16,9 +16,9 @@ class Assets:
         assets = Environment()
 
         lastfm_api = Bundle(
-                "js/lib/javascript-last.fm-api/lastfm.api.js",
-                "js/lib/javascript-last.fm-api/lastfm.api.cache.js",
-                "js/lib/javascript-last.fm-api/lastfm.api.md5.js",
+                "js/lib/lastfm/lastfm.api.js",
+                "js/lib/lastfm/lastfm.api.cache.js",
+                "js/lib/lastfm/lastfm.api.md5.js",
                 )
         
         js_libs = Bundle("js/lib/jquery.js", "js/lib/bootstrap.js", 
