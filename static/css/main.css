@@ -21,7 +21,19 @@
    Author's custom styles
    ========================================================================== */
 
-
+footer {
+    text-align: center;
+}
+footer > div:first-child {
+    border-right: 1px solid grey;
+}
+footer > div:last-child {
+    border-left: 1px solid grey;
+}
+#browser-data {
+    height: 400px;
+    overflow: auto;
+}
 
 
 

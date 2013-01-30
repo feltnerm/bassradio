@@ -21,4 +21,9 @@
     }
 }());
 
+(function () {
+    String.prototype.inquotes=function(){
+        return '"'+this.replace(/(^|[^\\])"/g,'$1\\"')+'"';
+    }
+}());
 // Place any jQuery/helper plugins in here.
