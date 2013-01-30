@@ -15,18 +15,25 @@ class Assets:
 
         assets = Environment()
 
+        lastfm_api = Bundle(
+                "js/lib/javascript-last.fm-api/lastfm.api.js",
+                "js/lib/javascript-last.fm-api/lastfm.api.cache.js",
+                "js/lib/javascript-last.fm-api/lastfm.api.md5.js"
+                )
+        
+
         js_libs = Bundle("js/lib/jquery.js", "js/lib/bootstrap.js", 
                 "js/lib/json2.js", "js/lib/underscore.js", 
                 "js/lib/backbone.js", "js/lib/ICanHaz.js",
-                "js/lib/javascript-last.fm-api/lastfm.api.js",
-                "js/lib/javascript-last.fm-api/lastfm.api.cache.js",
-                "js/lib/javascript-last.fm-api/lastfm.api.md5.js",
+                lastfm_api,
+                "js/lib/bxslider-4/jquery.bxslider.js",
                 "js/plugins.js", 
                 filters='jsmin',
                 output='gen/libs.js')
 
         css_libs = Bundle("css/lib/bootstrap.css", 
                 "css/lib/bootstrap-responsive.css",
+                "js/lib/bxslider-4/jquery.bxslider.css",
                 "css/main.css",
                 filters='cssmin',
                 output='gen/libs.css')
@@ -42,9 +49,9 @@ class Assets:
                 "js/models/album.js",
                 "js/models/artist.js",
                 "js/collections/albums.js",
+                "js/collections/query.js",
                 "js/collections/searchlist.js",
 
-                "js/views/songtablerow.js",
                 "js/views/songtable.js",
 
                 "js/views/album.js",

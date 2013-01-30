@@ -3,12 +3,15 @@ import os
 import os.path
 
 import simplejson as json 
+import mimetypes
 
 from flask import (abort, current_app, Blueprint, jsonify, request,
         send_file, Response)
 from werkzeug.datastructures import Headers
+from werkzeug.utils import secure_filename
 
 from extensions import db
+from helpers.streams import send_file_partial
 from models import Item, Album
 
 
@@ -25,11 +28,25 @@ class FileView:
             return abort(404)
         headers = Headers()
         headers.add("X-Content-Duration", item.length)
-        headers.add("X-Accel-Buffering", no)
+        headers.add("X-Accel-Buffering", "no")
+        range_header = request.headers.get('Range', None)
+        if range_header is not None:
+            range_header = range_header.split('-')
+            try:
+                range_header = intval(range_header[0])
+            except:
+                range_header = None
 
-        if ext not in ["ogg", "mp3", "flac", "wav",]:
-            return abort(404)
-        abort(401)
+        current_app.logger.info(mimetypes.guess_type(item.path))
+        return send_file_partial(item.path,
+                    mimetype=mimetypes.guess_type(item.path)[0],
+                    headers=headers,
+                    attachment_filename=secure_filename(
+                        "%d - %s - %s (%s)[%s]" %
+                        (item.track, item.title,
+                            item.artist, item.album,
+                            item.year)))
+        abort(404)
 
 class ListView:
     api = Blueprint('lists', __name__)
@@ -83,7 +100,10 @@ class AlbumView:
     @api.route("/<int:id>/cover/")
     def get_cover(id):
         album = Album.query.get_or_404(id)
-        return send_file(album.artpath)
+        if album.artpath:
+            if os.path.exists(album.artpath):
+                return send_file(album.artpath)
+        abort(404)
 
 class ArtistView:
     api = Blueprint('artists', __name__)
@@ -121,10 +141,24 @@ class QueryView:
         if 'includes' in request.args:
             includes = request.args.get('include').split("+")
 
-        filter_map = { "artist": Item.artist, "album": Item.album, 
-                "title": Item.title, "id": Item.id, "bitrate": Item.bitrate }
+        filter_map = { 
+                "artist": Item.artist, 
+                "album": Item.album, 
+                "title": Item.title, 
+                "id": Item.id, 
+                "bitrate": Item.bitrate, 
+                "album_id": Item.album_id,
+                "albumartist": Item.albumartist,
+                "genre": Item.genre,
+                }
         if object_type == 'album':
-            filter_map = {"album": Album.album, "id": Album.id}
+            filter_map = { 
+                    "album": Album.album, 
+                    "id": Album.id, 
+                    "artist": Album.albumartist,
+                    "genre": Album.genre, 
+                    "year": Album.year }
+
         filter_chain= None
 
         try:
