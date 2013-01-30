@@ -25,7 +25,6 @@ class Assets:
                 "js/lib/json2.js", "js/lib/underscore.js", 
                 "js/lib/backbone.js", "js/lib/ICanHaz.js",
                 lastfm_api,
-                "js/lib/bxslider-4/jquery.bxslider.js",
                 "js/plugins.js")
 
         css_libs = Bundle("css/lib/bootstrap.css", 
