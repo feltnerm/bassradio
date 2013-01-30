@@ -40,7 +40,7 @@ br.Models.Album = Backbone.Model.extend({
         this.attributes = attributes;
         this.options = options;
         this.set('songs', new br.Collections.Query([], {
-            object_type: 'song',
+            object_type: 'songs',
             query: "album_id:" + this.id
         }));
 

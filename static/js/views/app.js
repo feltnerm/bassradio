@@ -43,14 +43,26 @@ br.Views.App = Backbone.View.extend({
         }, this);
     },
 
-    render_browser: function (browser) {
-        this.browserView = new br.Views.Browser({ model: browser }); 
-        this.$el.append(this.browserView.render().el);
-        this.currentView = this.browserView;
-    },
+    show_browser: function (object_type, search_query) {
+        this.query = new br.Collections.Query([], {
+            limit: 100,
+            object_type: object_type || "songs",
+            query: search_query || "*"
+        });
+        this.query.query();
 
-    show_browser: function () {
-        //this.browserView = new br.Views.Browser();
+        this.browserView = new br.Views.Browser({ 
+            collection: this.query
+        });
+
+        if (this.currentView)
+            this.currentView.remove();
+
+        this.browserView.once("ready", function () {
+            this.$el.append(this.browserView.render().el);
+            this.currentView = this.browserView; 
+        }, this);
+
     },
 
     render: function () {
@@ -62,7 +74,6 @@ br.Views.App = Backbone.View.extend({
         this.navigation.render();
         this.searchBar.render();
         this.$el.append(this.controller.render().el);
-        this.currentView;
     },
 
     create_sub_views: function () {

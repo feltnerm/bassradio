@@ -62,11 +62,11 @@ br.Models.Artist = Backbone.Model.extend({
     initialize: function (attributes, options) {
         _.bindAll(this);
         this.set('songs', new br.Collections.Query([], {
-            object_type: "song",
+            object_type: "songs",
             query: "artist:"+this.id.inquotes(),
         }));
         this.set('albums', new br.Collections.Query([], {
-            object_type: "album",
+            object_type: "albums",
             query: "artist:"+this.id.inquotes(),
         }));
 

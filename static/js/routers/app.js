@@ -23,11 +23,15 @@ br.Routers.App =  Backbone.Router.extend({
         console.log("playlist not implemented");
     },
 
+    search: function (object_type, search_query) {
+        this.appView.show_browser(object_type, search_query);
+    },
+
     routes: { 
         "artist/:id": "artist",
         "album/:id": "album",
         "song/:id": "song",
-        "search/": "search",
+        "search/:object_type/:search_query": "search",
         "playlist/": "playlists",
         "": "index"
     },

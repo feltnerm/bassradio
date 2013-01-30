@@ -57,9 +57,9 @@ br.Collections.Query = Backbone.Collection.extend({
         var models = _.map(response[this.options.object_type], 
           function (obj) {
             var model;
-            if (this.options.object_type == "song") model = br.Models.Song;
-            if (this.options.object_type == "artist") model = br.Models.Artist;
-            if (this.options.object_type == "album") model = br.Models.Album;
+            if (this.options.object_type == "songs") model = br.Models.Song;
+            if (this.options.object_type == "artists") model = br.Models.Artist;
+            if (this.options.object_type == "albums") model = br.Models.Album;
             return new model(obj);
           }, this);
           return models;
