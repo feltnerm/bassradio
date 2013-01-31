@@ -56,6 +56,9 @@ def create_settings():
 
     puts('')
     settings['MUSIC_DATABASE'] = prompt(blue("Absolute path to music database: "))
+    settings['USERS_DATABASE'] = prompt(blue("Absolute path to users database: "))
+    settings['MAIL_SERVER'] = prompt(blue("Mail server URI: "))
+
     settings['FRONTEND'] = confirm(blue("Should Flask serve the frontend as well?: "))
     secret_key = binascii.b2a_hqx(os.urandom(42))
     pred('\nSECRET_KEY: %s' % secret_key)

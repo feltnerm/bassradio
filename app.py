@@ -39,7 +39,7 @@ def configure_error_handlers(app):
     def unauthorized(error):
         if request_wants_json():
             return make_json_error(error, 401)
-        return redirect(url_for('login', next=request.path))
+        return redirect('/#/login')
 
     @app.errorhandler(403)
     def forbidden(error):
@@ -81,25 +81,37 @@ def configure_error_handlers(app):
 
 def configure_extensions(app):
 
-    from extensions import db, Assets
+    from extensions import cache, db, mail, Assets, Login 
 
+    # initialize mail
+    mail = mail.init_app(app)
+
+    # initialize cache
+    cache = cache.init_app(app)
+
+    # initialize database
     db.init_app(app)
     app.logger.info("Database initialized.")
     db.app = app
     db.metadata.bind = db.get_engine(app)
     db.metadata.reflect()
     app.logger.info("Database tables reflected.")
+    from models import User
+    db.create_all(bind=['users'])
 
+    # frontend
     if app.config['FRONTEND']:
         Assets.register_app(app)
 
-    """
+    # login
     Login.manager.setup_app(app)
-
     @Login.manager.user_loader
     def load_user(userid):
-        return User(userid)
-    """
+        return User.query.get_or_404(userid)
+
+    @Login.manager.token_loader
+    def load_token(token):
+        return mongodb.User.find_one({ 'passkey': token })
 
 
 def configure_logging(app):
@@ -113,8 +125,9 @@ def configure_logging(app):
 
 def configure_routes(app):
 
+    from extensions import login_required
     from views import (AlbumView, ArtistView, FileView, ListView,
-            SongView, QueryView)
+            SongView, QueryView, UserView)
 
     default_url_prefix = '/api'
     for view, prefix in (
@@ -123,8 +136,8 @@ def configure_routes(app):
             (FileView, '/file'),
             (SongView, '/song'),
             (QueryView, '/query'),
-            (ListView, '/list')
-            ):
+            (ListView, '/list'),
+            (UserView, '/user'),):
         api_url_prefix = default_url_prefix + prefix
         app.register_blueprint(view.api, url_prefix=api_url_prefix)
         app.logger.info("Blueprint: <%s> added." % view.api)
@@ -136,6 +149,11 @@ def configure_routes(app):
         @app.route("/")
         def index():
             return render_template('index.html')
+
+    @app.route('/test')
+    @login_required
+    def test():
+        return Response(200)
     
 
 def init_app(config='settings_prod.py'):
@@ -154,12 +172,12 @@ def init_app(config='settings_prod.py'):
         from werkzeug.contrib.fixers import ProxyFix
         app.wsgi_app = ProxyFix(app.wsgi_app)
 
-    if app.debug:
+    #if app.debug:
 
-        from pprint import pprint
-        confstr = ""
-        for key, val in app.config.iteritems():
-            confstr += "  %s: %s\n" % (key, val)
-        app.logger.info(confstr)
+    #    from pprint import pprint
+    #    confstr = ""
+    #    for key, val in app.config.iteritems():
+    #        confstr += "  %s: %s\n" % (key, val)
+    #    app.logger.info(confstr)
 
     return app

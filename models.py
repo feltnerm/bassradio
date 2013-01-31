@@ -1,15 +1,81 @@
 import math
+import hashlib
+import os
+from datetime import datetime
 
 from flask import abort
 
 from unidecode import unidecode
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from helpers import format_time, to_json
 from extensions import db
+from flask.ext.login import make_secure_token
 
 from logging import getLogger
 logger = getLogger("bassradio")
 
+
+class User(db.Model):
+    __bind_key__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True)
+    email = db.Column(db.String(80))
+    activated = db.Column(db.Boolean)
+    pwdhash = db.Column(db.String)
+    invite_code = db.Column(db.String)
+    passkey = db.Column(db.String)
+    creation = db.Column(db.Date)
+
+    def to_json(self):
+        return {
+                'id': self.id,
+                'username': self.username,
+                'email': self.email,
+                'passkey': self.passkey,
+                }
+
+    def __init__(self, email):
+        self.email = email
+        self.activated = False
+        self.invite_code = hashlib.sha1(os.urandom(42)).hexdigest()
+        self.created = datetime.utcnow()
+
+    def activate(self, username, password):
+        self.username = username
+        self.pwdhash = self.make_password(password)
+        self.passkey = self.make_passkey(self.pwdhash)
+        self.activated = True
+        self.creation = datetime.utcnow()
+
+    def make_passkey(self, string):
+        return make_secure_token(string)
+
+    def make_password(self, password):
+        pwdhash = generate_password_hash(password)
+        return pwdhash
+
+    def check_password(self, password):
+       return check_password_hash(self.pwdhash, password)
+
+    def __str__(self):
+        return "<User %r>" % (self.username, 
+                self.email)
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return self.activated
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self.id
+
+    def get_auth_token(self):
+        return self.passkey
 
 class AlbumQuery(db.Query):
 
@@ -120,27 +186,3 @@ class Item(db.Model):
     @property
     def length_formatted(self):
         return format_time(self.length)
-
-
-class User(object):
-
-    def __init__(self, userid):
-        self.userid = userid
-
-    def __str__(self):
-        return "User<name: %s>" % self.userid
-
-    def authenticate(self, password):
-        return True
-
-    def is_authenticated(self):
-        return True
-
-    def is_active(self):
-        return True
-
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        return self.userid

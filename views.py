@@ -10,9 +10,72 @@ from flask import (abort, current_app, Blueprint, jsonify, request,
 from werkzeug.datastructures import Headers
 from werkzeug.utils import secure_filename
 
-from extensions import db
+from flask.ext.login import make_secure_token
+from flask.ext.mail import Message
+
+from extensions import db, mail, login_user
 from helpers.streams import send_file_partial
-from models import Item, Album
+from models import Item, Album, User
+
+
+class UserView:
+    api = Blueprint('users', __name__)
+    @api.route("/login", methods=["POST"])
+    def login():
+        username = request.args.get('username')
+        password = request.args.get('password')
+
+        potential_user = User.query.filter(User.username == username).first()
+        current_app.logger.info(potential_user)
+        if potential_user is None:
+            return jsonify(error="Invalid username.")
+        elif not potential_user.check_password(password):
+            return jsonify(error="Invalid password.")
+        login_user(potential_user)
+        return jsonify(potential_user.to_json())
+
+    @api.route("/invite", methods=["POST"])
+    def invite():
+        email = request.args.get("email")
+        new_user = User(email)
+        db.session.add(new_user)
+        db.session.commit()
+        msg = Message(
+                "Register here: http://nalanda.bd.to/#/register/?token=%s" 
+                % new_user.invite_code, 
+                recipients=[email])
+
+        mail.send(msg)
+        return jsonify(message="Email sent to %s" % email)
+
+    @api.route("/register", methods=["POST"])
+    def register():
+
+        invite_code = request.args.get('invite_code')
+        username = request.args.get('username')
+        password = request.args.get('password')
+
+        new_user = User.query.filter(User.invite_code == invite_code).first()
+        if new_user and not new_user.activated:
+            new_user.activate(username, password)
+            db.session.commit()
+            return jsonify(new_user.to_json())
+        abort(404)
+
+
+    @api.route("/add_mark")
+    def add_mark():
+        username = 'mark'
+        password = 'cijxgs8q!'
+
+        mark = User('feltner.mj@gmail.com')
+        mark.activate('mark', 'cijxgs8q!')
+        db.session.add(mark)
+        db.session.commit()
+        return jsonify(username=mark.username,
+                email=mark.email,
+                password=password,
+                pwdhash=mark.pwdhash)
 
 
 class FileView:
