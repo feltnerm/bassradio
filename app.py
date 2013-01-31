@@ -39,7 +39,7 @@ def configure_error_handlers(app):
     def unauthorized(error):
         if request_wants_json():
             return make_json_error(error, 401)
-        return redirect('/#/login')
+        return redirect(url_for('/'))
 
     @app.errorhandler(403)
     def forbidden(error):
@@ -107,11 +107,11 @@ def configure_extensions(app):
     Login.manager.setup_app(app)
     @Login.manager.user_loader
     def load_user(userid):
-        return User.query.get_or_404(userid)
+        return User.query.get(userid)
 
     @Login.manager.token_loader
     def load_token(token):
-        return mongodb.User.find_one({ 'passkey': token })
+        return User.query.filter(User.passkey == token).first()
 
 
 def configure_logging(app):
@@ -125,7 +125,6 @@ def configure_logging(app):
 
 def configure_routes(app):
 
-    from extensions import login_required
     from views import (AlbumView, ArtistView, FileView, ListView,
             SongView, QueryView, UserView)
 
@@ -150,11 +149,6 @@ def configure_routes(app):
         def index():
             return render_template('index.html')
 
-    @app.route('/test')
-    @login_required
-    def test():
-        return Response(200)
-    
 
 def init_app(config='settings_prod.py'):
 

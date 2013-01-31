@@ -13,7 +13,7 @@ from werkzeug.utils import secure_filename
 from flask.ext.login import make_secure_token
 from flask.ext.mail import Message
 
-from extensions import db, mail, login_user
+from extensions import db, mail, logout_user, login_user
 from helpers.streams import send_file_partial
 from models import Item, Album, User
 
@@ -62,20 +62,10 @@ class UserView:
             return jsonify(new_user.to_json())
         abort(404)
 
-
-    @api.route("/add_mark")
-    def add_mark():
-        username = 'mark'
-        password = 'cijxgs8q!'
-
-        mark = User('feltner.mj@gmail.com')
-        mark.activate('mark', 'cijxgs8q!')
-        db.session.add(mark)
-        db.session.commit()
-        return jsonify(username=mark.username,
-                email=mark.email,
-                password=password,
-                pwdhash=mark.pwdhash)
+    @api.route("/logout", methods=["POST"])
+    def logout():
+        logout_user()
+        return jsonify(current_user.to_json())
 
 
 class FileView:
