@@ -1,14 +1,8 @@
 bass + radio
 ============
 
-stuff:
-* RESTful music API thingy
-* bring your own frontend!
+**Wiki**: https://github.com/feltnerm/bassradio/wiki
 
-things:
-* Python
-    * Flask
-    * SQLAlchemy
-    * beets
+**Documentation**: http://bassradio.readthedocs.org/en/latest/
 
 
