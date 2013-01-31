@@ -1,6 +1,13 @@
 br.Views.App = Backbone.View.extend({
     $app: $("#app"),
 
+    show_login: function () {
+        if (this.currentVie)
+            this.currentView.remove();
+
+        this.$el.append(this.login.render().el);
+        this.currentView = this.login;
+    },
     show_artist: function (id) {
         this.artist = new br.Models.Artist({ artist: id });
         this.artist.fetch();
@@ -66,8 +73,11 @@ br.Views.App = Backbone.View.extend({
     },
 
     render: function () {
+        this.$app.empty();
         this.render_sub_views();
         this.$app.prepend(this.el);
+        if (this.currentView)
+            this.$el.append(this.currentView.render().el);
     },
 
     render_sub_views: function () {
@@ -80,6 +90,7 @@ br.Views.App = Backbone.View.extend({
         this.navigation = new br.Views.Navigation();
         this.searchBar = new br.Views.Searchbar();
         this.controller = new br.Views.Controller();
+        this.login = new br.Views.Login();
     },
 
     initialize: function () {

@@ -2,7 +2,7 @@
 <script type='text/html' id='navbar-template'>
 <!-- Navbar
 ================ -->
-<div id="navbar" class="navbar">
+<div id="navbar" class="navbar navbar-static-top">
     <div class="navbar-inner">
         <a class="brand" href="#">bassradio</a>
         <ul class="nav">
@@ -17,21 +17,51 @@
                     <li><a name="songs" href="#">Songs</a></li>
                 </ul>
             </li>
-            </li>
             <li><a id="playlists" href="#">Playlists</a></li>
             <li class="divider-vertical"></li>
+            <li>
+                <div id="searchbar pull-right">
+                    <form class="navbar-search">
+                        <input data-provide="typeahead" type="text" class="search-query" name="artist-search" placeholder="artist" />
+                        <input data-provide="typeahead" type="text" class="search-query" name="album-search" placeholder="album" />
+                        <input data-provide="typeahead" type="text" class="search-query" name="song-search" placeholder="song" />
+                    </form>
+                </div>
+            </li>
         </ul>
-        <div id="searchbar">
-            <form class="navbar-search pull-left">
-                <input data-provide="typeahead" type="text" class="search-query" name="artist-search" placeholder="artist" />
-                <input data-provide="typeahead" type="text" class="search-query" name="album-search" placeholder="album" />
-                <input data-provide="typeahead" type="text" class="search-query" name="song-search" placeholder="song" />
-            </form>
-        </div>
     </div>
 </div>
 </script>
 
+<script type='text/html' id="login-template">
+<div class="row-fluid">
+<div class="hero-unit">
+<h2>Login</h2>
+<form class="form-horizontal">
+    <div class="control-group">
+        <label class="control-label" for="inputUsername"></label>
+        <div class="controls">
+            <input type="text" id="inputUsername" placeholder="Username">
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="inputPassword"></label>
+        <div class="controls">
+            <input type="password" id="inputPassword" placeholder="Password">
+        </div>
+    </div>
+    <div class="control-group">
+        <div class="controls">
+            <label class="checkbox">
+                <input type="checkbox"> Remember me
+            </label>
+        </div>
+        <button type="submit" class="btn" id="login-btn">Sign in</button>
+    </div>
+</form>
+</div>
+</div>
+</script>
 <script type='text/html' id='controller-template'>
 <div class="row-fluid">
 </div>

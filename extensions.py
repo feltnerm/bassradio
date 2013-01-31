@@ -60,6 +60,8 @@ class Assets:
                 "js/views/searchbar.js",
                 "js/views/navigation.js",
                 "js/views/controller.js",
+                "js/models/user.js",
+                "js/views/login.js",
 
                 "js/views/app.js",
 

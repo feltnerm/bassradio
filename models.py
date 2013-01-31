@@ -33,6 +33,7 @@ class User(db.Model):
                 'username': self.username,
                 'email': self.email,
                 'passkey': self.passkey,
+                'activated': self.activated
                 }
 
     def __init__(self, email):
@@ -59,8 +60,7 @@ class User(db.Model):
        return check_password_hash(self.pwdhash, password)
 
     def __str__(self):
-        return "<User %r>" % (self.username, 
-                self.email)
+        return "<User %r>" % (self.username)
 
     def is_authenticated(self):
         return True
