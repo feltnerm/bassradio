@@ -26,8 +26,7 @@ def configure_before_handlers(app):
 
 def configure_error_handlers(app):
 
-    from flask import (jsonify, redirect, render_template, request,
-            url_for)
+    from flask import (jsonify, redirect, request, url_for)
     from helpers import request_wants_json
 
     def make_json_error(error, code):
@@ -37,51 +36,37 @@ def configure_error_handlers(app):
 
     @app.errorhandler(401)
     def unauthorized(error):
-        if request_wants_json():
-            return make_json_error(error, 401)
-        return redirect(url_for('/'))
+        return make_json_error(error, 401)
 
     @app.errorhandler(403)
     def forbidden(error):
-        if request_wants_json():
-            return make_json_error(error, 403)
-        return render_template("errors/403.html", error=error)
+        return make_json_error(error, 403)
 
     @app.errorhandler(404)
     def page_not_found(error):
-        if request_wants_json():
-            return make_json_error(error, 404)
-        return render_template("errors/404.html", error=error)
+        return make_json_error(error, 404)
 
     @app.errorhandler(413)
     def entity_too_large(error):
-        if request_wants_json():
-            return make_json_error(error, 413)
-        return render_template("errors/413.html", error=error)
+        return make_json_error(error, 413)
 
     @app.errorhandler(415)
     def unsupported_media(error):
-        if request_wants_json():
-            return make_json_error(error, 415)
-        return render_template("errors/415.html", error=error)
+        return make_json_error(error, 415)
 
     @app.errorhandler(500)
     def server_error(error):
         app.logger.error("Server error! %s" % error)
-        if request_wants_json():
-            return make_json_error(error, 500)
-        return render_template("errors/500.html", error=error)
+        return make_json_error(error, 500)
 
     @app.errorhandler(501)
     def not_implemented(error):
-        if request_wants_json():
-            return make_json_error(error, 501)
-        return render_template("errors/501.html", error=error)
+        return make_json_error(error, 501)
 
 
 def configure_extensions(app):
 
-    from extensions import cache, db, mail, Assets, Login 
+    from extensions import cache, db, mail, Login 
 
     # initialize mail
     mail = mail.init_app(app)
@@ -98,10 +83,6 @@ def configure_extensions(app):
     app.logger.info("Database tables reflected.")
     from models import User
     db.create_all(bind=['users'])
-
-    # frontend
-    if app.config['FRONTEND']:
-        Assets.register_app(app)
 
     # login
     Login.manager.setup_app(app)
@@ -140,14 +121,6 @@ def configure_routes(app):
         api_url_prefix = default_url_prefix + prefix
         app.register_blueprint(view.api, url_prefix=api_url_prefix)
         app.logger.info("Blueprint: <%s> added." % view.api)
-
-    if app.config['FRONTEND']:
-
-        from flask import render_template
-
-        @app.route("/")
-        def index():
-            return render_template('index.html')
 
 
 def init_app(config='settings_prod.py'):

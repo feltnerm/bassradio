@@ -49,17 +49,17 @@ def web():
 # =
 def create_settings():
     settings = {}
-    pblue("Enter your environment settings.")
+    pcyan("## Environment settings.")
     settings['PRODUCTION'] = False
     if confirm(blue("Are these settings for a production server?")):
         settings['PRODUCTION'] = True
 
     puts('')
+    pcyan("## Database Info:")
     settings['MUSIC_DATABASE'] = prompt(blue("Absolute path to music database: "))
     settings['USERS_DATABASE'] = prompt(blue("Absolute path to users database: "))
     settings['MAIL_SERVER'] = prompt(blue("Mail server URI: "))
 
-    settings['FRONTEND'] = confirm(blue("Should Flask serve the frontend as well?: "))
     secret_key = binascii.b2a_hqx(os.urandom(42))
     pred('\nSECRET_KEY: %s' % secret_key)
     if confirm(yellow("Verify everything looks correct?")):
